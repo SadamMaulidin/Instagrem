@@ -1,11 +1,15 @@
 package cookode.instagram_clone.Fragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -39,9 +43,80 @@ class ProfileFragment : Fragment() {
     ): View? {
         val viewprofile = inflater.inflate(R.layout.fragment_profile, container, false)
 
-        viewprofile.btn_edit_account.setOnClickListener {
-            startActivity(Intent(context, SettingAccountActivity::class.java))
+        firebaseUser = FirebaseAuth.getInstance().currentUser!!
+
+        val pref = context?.getSharedPreferences("PREFS", Context.MODE_PRIVATE)
+        if (pref != null)
+        {
+            this.profileId = pref.getString("profileId","none")!!
         }
+
+        if (profileId == firebaseUser.uid) {
+
+            view?.btn_edit_account?.text = "Edit Profile"
+
+        } else if (profileId != firebaseUser.uid){
+
+            checkFollowerAndFollowingStatus()
+        }
+
+        var recyclerViewUploadImages: RecyclerView? = null
+        recyclerViewUploadImages = viewprofile.findViewById(R.id.recyclerview_upload_picimage)
+        recyclerViewUploadImages?.setHasFixedSize(true)
+        val linearLayoutManager = GridLayoutManager(context,3)
+        recyclerViewUploadImages?.layoutManager = linearLayoutManager
+
+        postListGrid = ArrayList()
+        myImagesAdapter = context?.let { MyImagesAdapter(it, postListGrid as ArrayList<Post>) }
+        recyclerViewUploadImages?.adapter = myImagesAdapter
+
+
+        //merubah Account Settings and Profile Page Follow and Following Button
+        //sesuai kondisi
+        viewprofile.btn_edit_account.setOnClickListener {
+            val getButtonText = view?.btn_edit_account?.text.toString()
+
+            //when kondisi
+            when{
+                //jika button text = Edit profile maka intent ke Setting Account activity
+                getButtonText == "Edit Profile" -> startActivity(Intent(context,
+                    SettingAccountActivity::class.java))
+
+                getButtonText == "Follow" -> {
+                    firebaseUser.uid.let { it1 ->
+                        FirebaseDatabase.getInstance().reference
+                            .child("Follow").child(it1.toString())
+                            .child("Following").child(profileId).setValue(true)
+                    }
+
+                    firebaseUser?.uid.let { it1 ->
+                        FirebaseDatabase.getInstance().reference
+                            .child("Follow").child(profileId)
+                            .child("Followers").child(it1.toString()).setValue(true)
+                    }
+                }
+
+                getButtonText == "Following" -> {
+                    firebaseUser?.uid.let { it1 ->
+                        FirebaseDatabase.getInstance().reference
+                            .child("Follow").child(it1.toString())
+                            .child("Following").child(profileId).removeValue()
+                    }
+
+                    firebaseUser?.uid.let { it1 ->
+                        FirebaseDatabase.getInstance().reference
+                            .child("Follow").child(profileId)
+                            .child("Followers").child(it1.toString()).removeValue()
+                    }
+                }
+            }
+
+        }
+
+        getFollowers()
+        getFollowings()
+        userInfo()
+        myPost()
         return viewprofile
     }
 
@@ -163,6 +238,28 @@ class ProfileFragment : Fragment() {
 
             }
         })
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val pref = context?.getSharedPreferences("PREFS",Context.MODE_PRIVATE)?.edit()
+        pref?.putString("profileId", firebaseUser.uid)
+        pref?.apply()
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val pref = context?.getSharedPreferences("PREFS",Context.MODE_PRIVATE)?.edit()
+        pref?.putString("profileId", firebaseUser.uid)
+        pref?.apply()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val pref = context?.getSharedPreferences("PREFS",Context.MODE_PRIVATE)?.edit()
+        pref?.putString("profileId", firebaseUser.uid)
+        pref?.apply()
     }
 
 }
