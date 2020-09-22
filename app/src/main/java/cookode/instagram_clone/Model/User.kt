@@ -1,4 +1,4 @@
-package cookode.instagram_clone.Adapter
+package cookode.instagram_clone.Model
 
 data class User(
     var username: String = "",

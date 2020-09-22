@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentContainer
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -18,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import cookode.instagram_clone.Fragments.ProfileFragment
+import cookode.instagram_clone.Model.User
 import cookode.instagram_clone._clone.R
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -118,7 +118,8 @@ class UserAdapter (private var mContext: Context, private val mUser: List<User>,
     {
         val followingRef = firebaseUser?.uid.let { it1 ->
             FirebaseDatabase.getInstance().reference
-                .child("Follow").child(it1.toString())
+                .child("Follow")
+                .child(it1.toString())
                 .child("Following")
         }
 

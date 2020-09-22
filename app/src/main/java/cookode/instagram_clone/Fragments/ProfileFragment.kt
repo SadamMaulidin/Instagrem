@@ -17,7 +17,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import cookode.instagram_clone.Adapter.MyImagesAdapter
-import cookode.instagram_clone.Adapter.User
+import cookode.instagram_clone.LoginActivity
+import cookode.instagram_clone.Model.User
 import cookode.instagram_clone.Model.Post
 import cookode.instagram_clone.SettingAccountActivity
 import cookode.instagram_clone._clone.R
@@ -225,7 +226,8 @@ class ProfileFragment : Fragment() {
             override fun onDataChange(p0: DataSnapshot) {
 
                 if (p0.exists()){
-                    val user = p0.getValue<User>(User::class.java)
+                    val user = p0.getValue<User>(
+                        User::class.java)
 
                     Picasso.get().load(user?.image).placeholder(R.drawable.profile)
                         .into(view?.profile_image_gbr_frag)

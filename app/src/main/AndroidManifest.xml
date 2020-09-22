@@ -19,6 +19,7 @@
         <activity android:name=".MainActivity" />
         <activity android:name="cookode.instagram_clone.RegisterActivity" />
         <activity android:name="cookode.instagram_clone.AddPostActivity" />
+        <activity android:name="cookode.instagram_clone.CommentActivity" />
         <activity android:name="cookode.instagram_clone.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
